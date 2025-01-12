@@ -18,6 +18,35 @@ const userSlice = createSlice({
         setSelectedUser: (state, action) => {
             state.selectedUser = action.payload;
         },
+        updateUser: (state, action) => {
+            const { section, data } = action.payload;
+            
+            if (section === 'personal') {
+                state.selectedUser = {
+                    ...state.selectedUser,
+                    email: data.email,
+                    phone: data.phone,
+                    birthDate: data.birthDate,
+                    gender: data.gender,
+                };
+            } else if (section === 'address') {
+                state.selectedUser = {
+                    ...state.selectedUser,
+                    address: {
+                        ...state.selectedUser.address,
+                        ...data,
+                    },
+                };
+            } else if (section === 'company') {
+                state.selectedUser = {
+                    ...state.selectedUser,
+                    company: {
+                        ...state.selectedUser.company,
+                        ...data,
+                    },
+                };
+            }
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -35,5 +64,5 @@ const userSlice = createSlice({
     },
 });
 
-export const { setSelectedUser } = userSlice.actions;
+export const { setSelectedUser, updateUser } = userSlice.actions;
 export default userSlice.reducer;
