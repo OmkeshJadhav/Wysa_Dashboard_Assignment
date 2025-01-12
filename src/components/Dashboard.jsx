@@ -15,10 +15,10 @@ export default function Dashboard() {
     }, [dispatch]);
 
     return (
-        <div className="flex h-screen bg-gray-100">
+        <div className="flex h-screen">
             <Sidebar />
             <div className="flex-1 overflow-hidden">
-                <div className="p-6">
+                <div className="h-full p-6">
                     {selectedUser ? (
                         <>
                             <div className="mb-6">
@@ -37,7 +37,9 @@ export default function Dashboard() {
                                     </button>
                                 </div>
                             </div>
-                            {activeTab === 'details' ? <UserDetails /> : <TodoList />}
+                            <div className="h-[calc(100%-4rem)] overflow-y-auto">
+                                {activeTab === 'details' ? <UserDetails /> : <TodoList />}
+                            </div>
                         </>
                     ) : (
                         <div className="text-center text-gray-500 mt-10">
