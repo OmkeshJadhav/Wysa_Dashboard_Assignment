@@ -1,61 +1,9 @@
-// import { useEffect, useState } from 'react';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { fetchUsers } from '../store/userSlice';
-import Sidebar from './Sidebar';
-import UserDetails from './UserDetails/UserDetails';
-import TodoList from './ToDos/TodoList';
-
-
-// export default function Dashboard() {
-//     const [activeTab, setActiveTab] = useState('details');
-//     const dispatch = useDispatch();
-//     const { selectedUser } = useSelector((state) => state.users);
-
-//     useEffect(() => {
-//         dispatch(fetchUsers());
-//     }, [dispatch]);
-
-//     return (
-//         <div className="flex h-screen">
-//             <Sidebar />
-//             <div className="flex-1 overflow-hidden">
-//                 <div className="h-full p-6">
-//                     {selectedUser ? (
-//                         <>
-//                             <div className="mb-6">
-//                                 <div className="flex space-x-4 border-b">
-//                                     <button
-//                                         className={`px-4 py-2 ${activeTab === 'details' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500'}`}
-//                                         onClick={() => setActiveTab('details')}
-//                                     >
-//                                         User Details
-//                                     </button>
-//                                     <button
-//                                         className={`px-4 py-2 ${activeTab === 'todos' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500'}`}
-//                                         onClick={() => setActiveTab('todos')}
-//                                     >
-//                                         To-dos
-//                                     </button>
-//                                 </div>
-//                             </div>
-//                             <div className="h-[calc(100%-4rem)] overflow-y-auto">
-//                                 {activeTab === 'details' ? <UserDetails /> : <TodoList />}
-//                             </div>
-//                         </>
-//                     ) : (
-//                         <div className="text-center text-gray-500 mt-10">
-//                             Select a user from the sidebar to view details
-//                         </div>
-//                     )}
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// }
-
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUsers } from '../store/userSlice';
+import Sidebar from './Sidebar';
+import UserDetails from './UserDetails/UserDetails';
+import TodoList from './ToDos/TodoList';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const Dashboard = () => {
@@ -68,7 +16,6 @@ const Dashboard = () => {
         dispatch(fetchUsers());
     }, [dispatch]);
 
-    // Close sidebar when user is selected on mobile
     useEffect(() => {
         if (window.innerWidth < 768) {
             setSidebarOpen(false);
@@ -77,7 +24,6 @@ const Dashboard = () => {
 
     return (
         <div className="relative flex h-screen overflow-hidden">
-            {/* Overlay for mobile */}
             {sidebarOpen && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
@@ -85,7 +31,6 @@ const Dashboard = () => {
                 />
             )}
 
-            {/* Mobile header */}
             <div className="md:hidden fixed top-0 left-0 right-0 bg-white z-10 border-b px-4 py-2">
                 <button
                     onClick={() => setSidebarOpen(true)}
@@ -95,7 +40,6 @@ const Dashboard = () => {
                 </button>
             </div>
 
-            {/* Sidebar */}
             <div className={`
                 fixed md:static inset-y-0 left-0 z-30
                 w-72 bg-[#c0d0dc] border transform transition-transform duration-200 ease-in-out
@@ -114,7 +58,6 @@ const Dashboard = () => {
                 <Sidebar />
             </div>
 
-            {/* Main content */}
             <div className="flex-1 overflow-hidden mt-14 md:mt-0">
                 <div className="h-full p-4 md:p-6">
                     {selectedUser ? (
