@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUsers } from '../store/userSlice';
 import Sidebar from './Sidebar';
-import UserDetails from './UserDetails';
-import TodoList from './TodoList';
+// import UserDetails from './UserDetails';
+import TodoList from './ToDos/TodoList';
+import UserDetails from './UserDetails/UserDetails';
+
 
 export default function Dashboard() {
     const [activeTab, setActiveTab] = useState('details');
