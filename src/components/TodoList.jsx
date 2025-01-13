@@ -1,119 +1,16 @@
-// import { useEffect, useState } from 'react';
-// import { useDispatch, useSelector } from 'react-redux';
-// import {
-//     fetchUserTodos,
-//     addTodo,
-//     deleteTodo,
-//     toggleTodoCompletion
-// } from '../store/todoSlice';
-
-// export default function TodoList() {
-//     const [newTodo, setNewTodo] = useState('');
-//     const dispatch = useDispatch();
-//     const { selectedUser } = useSelector((state) => state.users);
-//     const { todos, status } = useSelector((state) => state.todos);
-
-//     useEffect(() => {
-//         if (selectedUser) {
-//             dispatch(fetchUserTodos(selectedUser.id));
-//         }
-//     }, [dispatch, selectedUser]);
-
-//     const handleAddTodo = async (e) => {
-//         e.preventDefault();
-//         if (newTodo.trim()) {
-//             await dispatch(addTodo({ userId: selectedUser.id, todo: newTodo }));
-//             setNewTodo('');
-//         }
-//     };
-
-//     const handleToggleCompletion = async (todoId, currentStatus) => {
-//         await dispatch(toggleTodoCompletion({
-//             todoId,
-//             completed: !currentStatus
-//         }));
-//     };
-
-//     if (status === 'loading') {
-//         return <div className="text-center py-4">Loading todos...</div>;
-//     }
-
-//     return (
-//         <div className="bg-white p-6 rounded-lg shadow">
-//             <form onSubmit={handleAddTodo} className="mb-6">
-//                 <div className="flex gap-2">
-//                     <input
-//                         type="text"
-//                         value={newTodo}
-//                         onChange={(e) => setNewTodo(e.target.value)}
-//                         placeholder="Add a new to-do..."
-//                         className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-//                         maxLength="150"
-//                     />
-//                     <div className="text-sm text-gray-400 self-center">
-//                         {newTodo.length}/150
-//                     </div>
-//                     <button
-//                         type="submit"
-//                         className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-//                         disabled={!newTodo.trim()}
-//                     >
-//                         Add To-do
-//                     </button>
-//                 </div>
-//             </form>
-
-//             <div className="space-y-4">
-//                 {todos.length === 0 ? (
-//                     <div className="text-center text-gray-500 py-4">
-//                         No todos yet. Add one to get started!
-//                     </div>
-//                 ) : (
-//                     todos.map((todo) => (
-//                         <div
-//                             key={todo.id}
-//                             className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors duration-150"
-//                         >
-//                             <div className="flex items-center gap-3 flex-1">
-//                                 <input
-//                                     type="checkbox"
-//                                     checked={todo.completed}
-//                                     className="h-5 w-5 text-blue-500 rounded cursor-pointer"
-//                                     onChange={() => handleToggleCompletion(todo.id, todo.completed)}
-//                                 />
-//                                 <span className={`flex-1 transition-all duration-200 ${todo.completed
-//                                         ? 'line-through text-gray-400'
-//                                         : 'text-gray-700'
-//                                     }`}>
-//                                     {todo.todo}
-//                                 </span>
-//                             </div>
-//                             <button
-//                                 onClick={() => dispatch(deleteTodo(todo.id))}
-//                                 className="ml-4 px-3 py-1 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-150"
-//                             >
-//                                 Delete
-//                             </button>
-//                         </div>
-//                     ))
-//                 )}
-//             </div>
-//         </div>
-//     );
-// }
-
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     fetchUserTodos,
     addTodo,
     deleteTodo,
-    toggleTodoCompletion
+    toggleTodoCompletion,
 } from '../store/todoSlice';
 
 export default function TodoList() {
     const [newTodo, setNewTodo] = useState('');
     const [editingTodo, setEditingTodo] = useState(null);
+    const [editedText, setEditedText] = useState(''); // Track edited text
     const dispatch = useDispatch();
     const { selectedUser } = useSelector((state) => state.users);
     const { todos, status } = useSelector((state) => state.todos);
@@ -144,12 +41,18 @@ export default function TodoList() {
         setNewTodo('');
     };
 
-    const handleEditTodo = async (todoId, updatedTodo) => {
-        await dispatch(toggleTodoCompletion({
-            todoId,
-            todo: updatedTodo,
-            completed: false
-        }));
+    const handleEditTodo = (todoId) => {
+        const updatedTodos = todos.map((todo) => {
+            if (todo.id === todoId) {
+                return { ...todo, todo: editedText };
+            }
+            return todo;
+        });
+
+        dispatch({
+            type: 'todos/updateTodoText',
+            payload: updatedTodos
+        });
         setEditingTodo(null);
     };
 
@@ -160,6 +63,32 @@ export default function TodoList() {
             year: 'numeric'
         });
     };
+
+    const handleToggleCompletion = (todoId) => {
+        const updatedTodos = todos.map((todo) =>
+            todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
+        );
+        dispatch({
+            type: 'todos/updateTodoText',
+            payload: updatedTodos,
+        });
+
+        
+        dispatch(toggleTodoCompletion({
+            todoId,
+            completed: !todos.find((todo) => todo.id === todoId).completed
+        })).unwrap().catch((error) => {
+            const revertedTodos = todos.map((todo) =>
+                todo.id === todoId ? { ...todo, completed: todo.completed } : todo
+            );
+            dispatch({
+                type: 'todos/updateTodoText',
+                payload: revertedTodos,
+            });
+            console.error('Failed to toggle todo completion:', error);
+        });
+    };
+
 
     return (
         <div className="bg-white p-6 rounded-lg">
@@ -204,19 +133,16 @@ export default function TodoList() {
                             <input
                                 type="checkbox"
                                 checked={todo.completed}
-                                onChange={() => dispatch(toggleTodoCompletion({
-                                    todoId: todo.id,
-                                    completed: !todo.completed
-                                }))}
+                                onChange={() => handleToggleCompletion(todo.id)}
                                 className="h-5 w-5 text-blue-500 rounded cursor-pointer"
                             />
                             {editingTodo === todo.id ? (
                                 <input
                                     type="text"
-                                    value={todo.todo}
-                                    onChange={(e) => handleEditTodo(todo.id, e.target.value)}
+                                    value={editedText}
+                                    onChange={(e) => setEditedText(e.target.value)}
                                     className="flex-1 px-2 py-1 border rounded"
-                                    onBlur={() => setEditingTodo(null)}
+                                    onBlur={() => handleEditTodo(todo.id)}
                                     autoFocus
                                 />
                             ) : (
@@ -232,7 +158,10 @@ export default function TodoList() {
                         </div>
                         <div className="flex items-center gap-2">
                             <button
-                                onClick={() => setEditingTodo(todo.id)}
+                                onClick={() => {
+                                    setEditingTodo(todo.id);
+                                    setEditedText(todo.todo);
+                                }}
                                 className="p-1.5 text-gray-600 hover:text-blue-600"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

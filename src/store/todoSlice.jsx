@@ -40,6 +40,35 @@ export const deleteTodo = createAsyncThunk('todos/deleteTodo', async (todoId) =>
     return todoId;
 });
 
+// const todoSlice = createSlice({
+//     name: 'todos',
+//     initialState: {
+//         todos: [],
+//         status: 'idle',
+//         error: null,
+//     },
+//     reducers: {},
+//     extraReducers: (builder) => {
+//         builder
+//             .addCase(fetchUserTodos.fulfilled, (state, action) => {
+//                 state.todos = action.payload;
+//                 state.status = 'succeeded';
+//             })
+//             .addCase(addTodo.fulfilled, (state, action) => {
+//                 state.todos.push(action.payload);
+//             })
+//             .addCase(deleteTodo.fulfilled, (state, action) => {
+//                 state.todos = state.todos.filter(todo => todo.id !== action.payload);
+//             })
+//             .addCase(toggleTodoCompletion.fulfilled, (state, action) => {
+//                 const index = state.todos.findIndex(todo => todo.id === action.payload.id);
+//                 if (index !== -1) {
+//                     state.todos[index] = action.payload;
+//                 }
+//             });
+//     },
+// });
+
 const todoSlice = createSlice({
     name: 'todos',
     initialState: {
@@ -47,7 +76,12 @@ const todoSlice = createSlice({
         status: 'idle',
         error: null,
     },
-    reducers: {},
+    reducers: {
+        updateTodoText: (state, action) => {
+            const updatedTodos = action.payload;
+            state.todos = updatedTodos;
+        }
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchUserTodos.fulfilled, (state, action) => {
@@ -68,5 +102,7 @@ const todoSlice = createSlice({
             });
     },
 });
+
+export const { updateTodoText } = todoSlice.actions;
 
 export default todoSlice.reducer;
